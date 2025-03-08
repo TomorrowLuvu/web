@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const className = document.getElementById('student-class-input').value.trim();
 
                     if (!name || !className) {
-                        alert('Vui lòng nhập đầy đủ thông tin học sinh.');
+                        alert('Vui lòng nhập đầy đủ thông tin học sinh(giáo viên).');
                         return;
                     }
 
