@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const className = document.getElementById('student-class-input').value.trim();
 
                     if (!name || !className) {
-                        alert('Vui lòng nhập đầy đủ thông tin học sinh(giáo viên).');
+                        alert('Vui lòng nhập đầy đủ thông tin học sinh.');
                         return;
                     }
 
@@ -141,9 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const infoDisplay = document.createElement('div');
         infoDisplay.id = 'student-info-display';
         infoDisplay.className = 'locked-info';
+        const roleDisplay = studentInfo.role === 'teacher' ? 'Giáo viên' : 'Học sinh';
         infoDisplay.innerHTML = `
-            <p><strong>Tên học sinh:</strong> ${studentInfo.name}</p>
+            <p><strong>Tên:</strong> ${studentInfo.name}</p>
             <p><strong>Lớp:</strong> ${studentInfo.class}</p>
+            <p><strong>Vai trò:</strong> ${roleDisplay}</p>
             <p><small>Đã cập nhật lần cuối: ${studentInfo.lastEditedAt || 'N/A'}</small></p>
         `;
 

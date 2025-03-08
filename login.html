@@ -46,9 +46,47 @@
                 const result = window.userAuth.loginUser(username, password);
                 
                 if (result.success) {
-                    // Store current user in localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    window.location.href = 'index.html';
+                    // Show success notification
+                    const successNotif = document.createElement('div');
+                    successNotif.className = 'success-notification';
+                    successNotif.innerHTML = `
+                        <div class="notification-content">
+                            <p>Đăng nhập thành công!</p>
+                            <button id="notif-ok-btn">OK (<span id="countdown">3</span>)</button>
+                        </div>
+                    `;
+                    document.body.appendChild(successNotif);
+                    
+                    // Handle OK button click
+                    document.getElementById('notif-ok-btn').addEventListener('click', function() {
+                        document.body.removeChild(successNotif);
+                        localStorage.setItem('currentUser', JSON.stringify(result.user));
+                        window.location.href = 'index.html';
+                    });
+                    
+                    // Start countdown timer
+                    let seconds = 3;
+                    const countdownElement = document.getElementById('countdown');
+                    const countdownInterval = setInterval(() => {
+                        seconds--;
+                        if (countdownElement) countdownElement.textContent = seconds;
+                        if (seconds <= 0) {
+                            clearInterval(countdownInterval);
+                            if (document.body.contains(successNotif)) {
+                                document.body.removeChild(successNotif);
+                                localStorage.setItem('currentUser', JSON.stringify(result.user));
+                                window.location.href = 'index.html';
+                            }
+                        }
+                    }, 1000);
+                    
+                    // Allow immediate dismissal
+                    document.getElementById('notif-ok-btn').addEventListener('click', function() {
+                        clearInterval(countdownInterval);
+                        document.body.removeChild(successNotif);
+                        localStorage.setItem('currentUser', JSON.stringify(result.user));
+                        window.location.href = 'index.html';
+                    });
                 } else {
                     loginError.textContent = result.message;
                     loginError.style.display = 'block';

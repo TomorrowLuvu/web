@@ -57,12 +57,62 @@
             align-items: center;
             flex-basis: 48%;
         }
+
+        /* Styles for accounts list */
+        .accounts-list {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #17a2b8;
+        }
+
+        .account-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-item .role-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: white;
+        }
+
+        .role-student {
+            background-color: #28a745;
+        }
+
+        .role-teacher {
+            background-color: #6610f2;
+        }
+
+        .role-admin {
+            background-color: #dc3545;
+        }
+
+        .role-undefined {
+            background-color: #6c757d;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Quản lý người dùng</h1>
         <div id="admin-message" class="success" style="display: none;"></div>
+
+        <div id="accounts-summary">
+            <h2>Tổng hợp tài khoản</h2>
+            <div id="accounts-list" class="accounts-list">
+                <!-- Accounts list will be displayed here -->
+            </div>
+        </div>
 
         <div id="users-container">
             <h2>Danh sách người dùng</h2>
@@ -106,16 +156,21 @@
                 userList.innerHTML = '';
 
                 users.forEach(user => {
-                    if (user.id === currentUser.id) return; // Skip current admin
+                    if (user.id === currentUser.id || user.isAdmin) return; // Skip current admin and admin accounts
+
+                    // Get user role information
+                    const studentInfoKey = `studentInfo_${user.id}`;
+                    const studentInfo = JSON.parse(localStorage.getItem(studentInfoKey) || '{}');
+                    const userRole = studentInfo.role === 'teacher' ? 'Giáo viên' : studentInfo.role === 'student' ? 'Học sinh' : 'Chưa xác định';
 
                     const userDiv = document.createElement('div');
                     userDiv.className = 'user-row';
 
                     const userHeader = document.createElement('div');
                     userHeader.className = 'user-header';
-
+                    
                     const userInfo = document.createElement('div');
-                    userInfo.innerHTML = `<strong>${user.username}</strong>`;
+                    userInfo.innerHTML = `<strong>${user.username}</strong> <span style="color: #6c757d;">(${userRole})</span>`;
 
                     const toggleBtn = document.createElement('button');
                     toggleBtn.textContent = 'Hiển thị quyền';
@@ -148,6 +203,8 @@
                             }
                         });
                     }
+
+                    
 
                     // Helper function to format permission labels
                     function formatPermissionLabel(permId) {
@@ -298,7 +355,7 @@
                     let updateCount = 0;
 
                     users.forEach(user => {
-                        if (user.id === currentUser.id) return; // Skip current admin
+                        if (user.id === currentUser.id || user.isAdmin) return; // Skip current admin and admin accounts
 
                         // Get all available permissions
                         const allPermissions = [];
@@ -365,7 +422,7 @@
                     let updateCount = 0;
 
                     users.forEach(user => {
-                        if (user.id === currentUser.id) return; // Skip current admin
+                        if (user.id === currentUser.id || user.isAdmin) return; // Skip current admin and admin accounts
 
                         // Add the permission if not already present
                         if (!user.permissions.includes(selectedPermission)) {
@@ -426,6 +483,59 @@
             // Initialize
             populatePermissionDropdown();
             renderUsers();
+            displayAccountsList();
+
+            // Function to display all accounts with their roles
+            function displayAccountsList() {
+                const accountsList = document.getElementById('accounts-list');
+                accountsList.innerHTML = '';
+                
+                const allUsers = window.userAuth.getAllUsers();
+                if (allUsers.length === 0) {
+                    accountsList.innerHTML = '<p>Không có tài khoản nào.</p>';
+                    return;
+                }
+
+                // Create header
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'account-item';
+                headerDiv.style.fontWeight = 'bold';
+                headerDiv.style.backgroundColor = '#e9ecef';
+                headerDiv.innerHTML = `
+                    <div>Tên đăng nhập</div>
+                    <div>Vai trò</div>
+                `;
+                accountsList.appendChild(headerDiv);
+                
+                // Add each user
+                allUsers.forEach(user => {
+                    const studentInfoKey = `studentInfo_${user.id}`;
+                    const studentInfo = JSON.parse(localStorage.getItem(studentInfoKey) || '{}');
+                    
+                    let roleName = 'Chưa xác định';
+                    let roleClass = 'role-undefined';
+                    
+                    if (user.isAdmin) {
+                        roleName = 'Quản trị viên';
+                        roleClass = 'role-admin';
+                    } else if (studentInfo.role === 'teacher') {
+                        roleName = 'Giáo viên';
+                        roleClass = 'role-teacher';
+                    } else if (studentInfo.role === 'student') {
+                        roleName = 'Học sinh';
+                        roleClass = 'role-student';
+                    }
+                    
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'account-item';
+                    userDiv.innerHTML = `
+                        <div>${user.username}</div>
+                        <div class="role-badge ${roleClass}">${roleName}</div>
+                    `;
+                    
+                    accountsList.appendChild(userDiv);
+                });
+            }
         });
     </script>
     <div class="footer-credit">Code by Dang Phat</div>

@@ -10,7 +10,7 @@
     <!-- Student Info Modal -->
     <div id="student-info-modal" class="modal info-hidden">
         <div class="modal-content">
-            <h3>Thông tin học sinh</h3>
+            <h3>Thông tin người dùng</h3>
             <p>Vui lòng cung cấp thông tin của bạn trước khi tiếp tục:</p>
             <div class="form-group">
                 <label for="student-name-input">Họ và tên:</label>
@@ -19,6 +19,17 @@
             <div class="form-group">
                 <label for="student-class-input">Lớp:</label>
                 <input type="text" id="student-class-input" required>
+            </div>
+            <div class="form-group role-selection">
+                <label>Vai trò:</label>
+                <div class="role-options">
+                    <label class="role-option">
+                        <input type="radio" name="user-role" value="student" checked> Học sinh
+                    </label>
+                    <label class="role-option">
+                        <input type="radio" name="user-role" value="teacher"> Giáo viên
+                    </label>
+                </div>
             </div>
             <button id="save-student-info" class="view-btn">Xác nhận</button>
         </div>

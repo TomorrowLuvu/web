@@ -78,6 +78,9 @@
                 const students = [];
                 
                 allUsers.forEach(user => {
+                    // Skip admin accounts - they should not be visible in the student list
+                    if (user.isAdmin) return;
+                    
                     const studentInfoKey = `studentInfo_${user.id}`;
                     const studentInfo = JSON.parse(localStorage.getItem(studentInfoKey) || '{}');
                     
@@ -115,10 +118,13 @@
 
                     const studentInfo = document.createElement('div');
                     studentInfo.className = 'student-info';
+                    const roleDisplay = student.role === 'teacher' ? 'Giáo viên' : 'Học sinh';
                     studentInfo.innerHTML = `
-                        <strong>Tên học sinh:</strong> ${student.name}
+                        <strong>Tên:</strong> ${student.name}
                         <br>
                         <strong>Lớp:</strong> ${student.class}
+                        <br>
+                        <strong>Vai trò:</strong> ${roleDisplay}
                         <br>
                         <strong>Tài khoản:</strong> ${student.username}
                         <br>
@@ -160,14 +166,25 @@
                 editModal.className = 'modal';
                 editModal.innerHTML = `
                     <div class="modal-content">
-                        <h3>Chỉnh sửa thông tin học sinh</h3>
+                        <h3>Chỉnh sửa thông tin người dùng</h3>
                         <div class="form-group">
-                            <label for="edit-name">Tên học sinh:</label>
+                            <label for="edit-name">Tên:</label>
                             <input type="text" id="edit-name" value="${student.name || ''}">
                         </div>
                         <div class="form-group">
                             <label for="edit-class">Lớp:</label>
                             <input type="text" id="edit-class" value="${student.class || ''}">
+                        </div>
+                        <div class="form-group role-selection">
+                            <label>Vai trò:</label>
+                            <div class="role-options">
+                                <label class="role-option">
+                                    <input type="radio" name="edit-user-role" value="student" ${student.role !== 'teacher' ? 'checked' : ''}> Học sinh
+                                </label>
+                                <label class="role-option">
+                                    <input type="radio" name="edit-user-role" value="teacher" ${student.role === 'teacher' ? 'checked' : ''}> Giáo viên
+                                </label>
+                            </div>
                         </div>
                         <div class="button-group">
                             <button id="save-edit-btn" class="view-btn">Lưu thay đổi</button>
@@ -188,6 +205,9 @@
                         return;
                     }
                     
+                    // Get selected role
+                    const selectedRole = document.querySelector('input[name="edit-user-role"]:checked').value;
+                    
                     // Update student info
                     const studentInfoKey = `studentInfo_${student.userId}`;
                     const studentInfo = JSON.parse(localStorage.getItem(studentInfoKey) || '{}');
@@ -196,6 +216,7 @@
                         ...studentInfo,
                         name: newName,
                         class: newClass,
+                        role: selectedRole,
                         lastEditedBy: currentUser.username,
                         lastEditedAt: new Date().toLocaleString('vi-VN')
                     };
