@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa thông tin học sinh</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .student-row {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .student-info {
+            margin-bottom: 10px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        /* Lock/unlock button styles removed */
+        
+        .no-students {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chỉnh sửa thông tin học sinh</h1>
+        <div id="status-message" class="status-message" style="display: none;"></div>
+
+        <div id="student-list-container">
+            <h2>Danh sách học sinh</h2>
+            <div id="student-list">
+                <!-- Student list will be populated here -->
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button id="back-btn">Trở về trang chủ</button>
+        </div>
+    </div>
+
+    <script src="users.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const studentList = document.getElementById('student-list');
+            const statusMessage = document.getElementById('status-message');
+            const backBtn = document.getElementById('back-btn');
+
+            // Check if user has permission
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || !(currentUser.isAdmin || currentUser.permissions.includes('edit_info'))) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Get all students with info
+            function getAllStudentInfo() {
+                const allUsers = window.userAuth.getAllUsers();
+                const students = [];
+                
+                allUsers.forEach(user => {
+                    const studentInfoKey = `studentInfo_${user.id}`;
+                    const studentInfo = JSON.parse(localStorage.getItem(studentInfoKey) || '{}');
+                    
+                    if (studentInfo.name && studentInfo.class) {
+                        students.push({
+                            userId: user.id,
+                            username: user.username,
+                            ...studentInfo
+                        });
+                    }
+                });
+                
+                return students;
+            }
+
+            // Format date helper
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                return dateString;
+            }
+
+            // Render student list
+            function renderStudents() {
+                const students = getAllStudentInfo();
+                studentList.innerHTML = '';
+
+                if (students.length === 0) {
+                    studentList.innerHTML = '<div class="no-students">Chưa có thông tin học sinh nào.</div>';
+                    return;
+                }
+
+                students.forEach(student => {
+                    const studentDiv = document.createElement('div');
+                    studentDiv.className = 'student-row';
+
+                    const studentInfo = document.createElement('div');
+                    studentInfo.className = 'student-info';
+                    studentInfo.innerHTML = `
+                        <strong>Tên học sinh:</strong> ${student.name}
+                        <br>
+                        <strong>Lớp:</strong> ${student.class}
+                        <br>
+                        <strong>Tài khoản:</strong> ${student.username}
+                        <br>
+                        <small>Cập nhật lần cuối: ${formatDate(student.lastEditedAt)} bởi ${student.lastEditedBy || 'N/A'}</small>
+                    `;
+
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'actions';
+
+                    // Add edit button for admins or users with edit_info permission
+                    if (currentUser.isAdmin || currentUser.permissions.includes('edit_info')) {
+                        const editButton = document.createElement('button');
+                        editButton.textContent = 'Sửa thông tin';
+                        editButton.className = 'view-btn';
+                        editButton.addEventListener('click', function() {
+                            editStudentInfo(student);
+                        });
+                        actionsDiv.appendChild(editButton);
+                    }
+
+                    studentDiv.appendChild(studentInfo);
+                    studentDiv.appendChild(actionsDiv);
+                    studentList.appendChild(studentDiv);
+                });
+            }
+
+            // Lock/unlock functions removed as requested
+
+            // Edit student info
+            function editStudentInfo(student) {
+                // Only those with edit permission can edit
+                if (!currentUser.isAdmin && !currentUser.permissions.includes('edit_info')) {
+                    showStatus('Bạn không có quyền chỉnh sửa thông tin học sinh.', 'error');
+                    return;
+                }
+                
+                // Create edit modal
+                const editModal = document.createElement('div');
+                editModal.className = 'modal';
+                editModal.innerHTML = `
+                    <div class="modal-content">
+                        <h3>Chỉnh sửa thông tin học sinh</h3>
+                        <div class="form-group">
+                            <label for="edit-name">Tên học sinh:</label>
+                            <input type="text" id="edit-name" value="${student.name || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-class">Lớp:</label>
+                            <input type="text" id="edit-class" value="${student.class || ''}">
+                        </div>
+                        <div class="button-group">
+                            <button id="save-edit-btn" class="view-btn">Lưu thay đổi</button>
+                            <button id="cancel-edit-btn" class="delete-btn">Hủy</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(editModal);
+                
+                // Handle save button
+                document.getElementById('save-edit-btn').addEventListener('click', function() {
+                    const newName = document.getElementById('edit-name').value.trim();
+                    const newClass = document.getElementById('edit-class').value.trim();
+                    
+                    if (!newName || !newClass) {
+                        alert('Vui lòng nhập đầy đủ thông tin.');
+                        return;
+                    }
+                    
+                    // Update student info
+                    const studentInfoKey = `studentInfo_${student.userId}`;
+                    const studentInfo = JSON.parse(localStorage.getItem(studentInfoKey) || '{}');
+                    
+                    const updatedInfo = {
+                        ...studentInfo,
+                        name: newName,
+                        class: newClass,
+                        lastEditedBy: currentUser.username,
+                        lastEditedAt: new Date().toLocaleString('vi-VN')
+                    };
+                    
+                    localStorage.setItem(studentInfoKey, JSON.stringify(updatedInfo));
+                    document.body.removeChild(editModal);
+                    showStatus('Đã cập nhật thông tin học sinh.', 'success');
+                    renderStudents();
+                });
+                
+                // Handle cancel button
+                document.getElementById('cancel-edit-btn').addEventListener('click', function() {
+                    document.body.removeChild(editModal);
+                });
+            }
+
+            // Show status message
+            function showStatus(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status-message ' + type;
+                statusMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 3000);
+            }
+
+            // Navigation
+            backBtn.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+
+            // Initialize
+            renderStudents();
+        });
+    </script>
+    <div class="footer-credit">Code by Dang Phat</div>
+</body>
+</html>

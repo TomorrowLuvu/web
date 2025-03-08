@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý người dùng</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .user-row {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .toggle-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .toggle-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .permission-checkbox {
+            margin-right: 10px;
+        }
+
+        .permissions-container {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            border-left: 3px solid #4CAF50;
+        }
+
+        .permissions-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            flex-basis: 48%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quản lý người dùng</h1>
+        <div id="admin-message" class="success" style="display: none;"></div>
+
+        <div id="users-container">
+            <h2>Danh sách người dùng</h2>
+            <div class="permission-controls">
+                <button id="grant-all-btn" class="view-btn">Cấp tất cả quyền</button>
+                <button id="revoke-all-btn" class="delete-btn">Thu hồi tất cả quyền</button>
+                <select id="batch-permission-select">
+                    <option value="">-- Chọn quyền để quản lý --</option>
+                </select>
+                <button id="grant-selected-btn" class="view-btn">Cấp quyền đã chọn</button>
+                <button id="revoke-selected-btn" class="delete-btn">Thu hồi quyền đã chọn</button>
+            </div>
+            <div id="user-list">
+                <!-- User list will be populated here -->
+            </div>
+        </div>
+
+        <div class="form-footer">
+            <button id="back-btn">Trở về trang chủ</button>
+            <button id="edit-permissions-btn" style="margin-left: 10px; background-color: #28a745;">Quản lý quyền chỉnh sửa</button>
+        </div>
+    </div>
+
+    <script src="users.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userList = document.getElementById('user-list');
+            const adminMessage = document.getElementById('admin-message');
+            const backBtn = document.getElementById('back-btn');
+
+            // Check if user is admin
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser || !currentUser.isAdmin) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Render user list
+            function renderUsers() {
+                const users = window.userAuth.getAllUsers();
+                userList.innerHTML = '';
+
+                users.forEach(user => {
+                    if (user.id === currentUser.id) return; // Skip current admin
+
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'user-row';
+
+                    const userHeader = document.createElement('div');
+                    userHeader.className = 'user-header';
+
+                    const userInfo = document.createElement('div');
+                    userInfo.innerHTML = `<strong>${user.username}</strong>`;
+
+                    const toggleBtn = document.createElement('button');
+                    toggleBtn.textContent = 'Hiển thị quyền';
+                    toggleBtn.className = 'toggle-btn';
+                    toggleBtn.dataset.expanded = 'false';
+
+                    userHeader.appendChild(userInfo);
+                    userHeader.appendChild(toggleBtn);
+
+                    const permissionsContainer = document.createElement('div');
+                    permissionsContainer.className = 'permissions-container';
+                    permissionsContainer.style.display = 'none';
+
+                    // Create checkboxes for each permission
+                    const permissions = [
+                        { id: 'view', label: 'Xem bài nộp' },
+                        { id: 'download', label: 'Tải xuống bài nộp' },
+                        { id: 'delete', label: 'Xóa bài nộp' },
+                        { id: 'manage_permissions', label: 'Quản lý quyền' },
+                        { id: 'edit_info', label: 'Mở khóa và chỉnh sửa thông tin học sinh' },
+                        { id: 'unlock_info', label: 'Mở khóa thông tin cho người dùng khác' }
+                    ];
+
+                    // Get all permissions from userAuth
+                    if (window.userAuth && window.userAuth.PERMISSIONS) {
+                        // Add any missing permissions from the system
+                        Object.values(window.userAuth.PERMISSIONS).forEach(permId => {
+                            if (!permissions.some(p => p.id === permId)) {
+                                permissions.push({ id: permId, label: formatPermissionLabel(permId) });
+                            }
+                        });
+                    }
+
+                    // Helper function to format permission labels
+                    function formatPermissionLabel(permId) {
+                        return permId.split('_')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+                    }
+
+                    const permissionsGrid = document.createElement('div');
+                    permissionsGrid.className = 'permissions-grid';
+
+                    permissions.forEach(permission => {
+                        const checkboxContainer = document.createElement('div');
+                        checkboxContainer.className = 'permission-item';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = `${user.id}-${permission.id}`;
+                        checkbox.className = 'permission-checkbox';
+                        checkbox.checked = user.permissions.includes(permission.id);
+                        checkbox.dataset.userId = user.id;
+                        checkbox.dataset.permission = permission.id;
+
+                        const label = document.createElement('label');
+                        label.htmlFor = `${user.id}-${permission.id}`;
+                        label.textContent = permission.label;
+
+                        checkboxContainer.appendChild(checkbox);
+                        checkboxContainer.appendChild(label);
+                        permissionsGrid.appendChild(checkboxContainer);
+                    });
+
+                    permissionsContainer.appendChild(permissionsGrid);
+
+                    const saveBtn = document.createElement('button');
+                    saveBtn.textContent = 'Lưu quyền';
+                    saveBtn.className = 'view-btn';
+                    saveBtn.dataset.userId = user.id;
+                    saveBtn.addEventListener('click', function() {
+                        saveUserPermissions(user.id);
+                    });
+
+                    // Toggle permissions visibility
+                    toggleBtn.addEventListener('click', function() {
+                        const isExpanded = toggleBtn.dataset.expanded === 'true';
+                        if (isExpanded) {
+                            permissionsContainer.style.display = 'none';
+                            toggleBtn.textContent = 'Hiển thị quyền';
+                            toggleBtn.dataset.expanded = 'false';
+                        } else {
+                            permissionsContainer.style.display = 'block';
+                            toggleBtn.textContent = 'Ẩn quyền';
+                            toggleBtn.dataset.expanded = 'true';
+                        }
+                    });
+
+                    permissionsContainer.appendChild(saveBtn);
+                    userDiv.appendChild(userHeader);
+                    userDiv.appendChild(permissionsContainer);
+                    userList.appendChild(userDiv);
+                });
+
+                if (users.length <= 1) {
+                    userList.innerHTML = '<p>Chưa có người dùng nào khác.</p>';
+                }
+            }
+
+            function saveUserPermissions(userId) {
+                const checkboxes = document.querySelectorAll(`input[data-user-id="${userId}"]`);
+                const newPermissions = [];
+
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        newPermissions.push(checkbox.dataset.permission);
+                    }
+                });
+
+                const success = window.userAuth.updateUserPermissions(userId, newPermissions);
+                if (success) {
+                    adminMessage.textContent = "Đã cập nhật quyền thành công";
+                    adminMessage.className = "success";
+                    adminMessage.style.display = "block";
+
+                    setTimeout(() => {
+                        adminMessage.style.display = "none";
+                    }, 3000);
+                }
+            }
+
+            backBtn.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+
+            // Add navigation to edit permissions page
+            const editPermissionsBtn = document.getElementById('edit-permissions-btn');
+            editPermissionsBtn.addEventListener('click', function() {
+                window.location.href = 'edit-permissions.html';
+            });
+
+            // Setup batch permission controls
+            const batchPermissionSelect = document.getElementById('batch-permission-select');
+            const grantAllBtn = document.getElementById('grant-all-btn');
+            const revokeAllBtn = document.getElementById('revoke-all-btn');
+            const grantSelectedBtn = document.getElementById('grant-selected-btn');
+            const revokeSelectedBtn = document.getElementById('revoke-selected-btn');
+
+            // Format permission label helper
+            function formatPermissionLabel(permId) {
+                return permId.split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+            }
+
+            // Populate permission dropdown
+            function populatePermissionDropdown() {
+                batchPermissionSelect.innerHTML = '<option value="">-- Chọn quyền để quản lý --</option>';
+
+                const permissions = [
+                    { id: 'view', label: 'Xem bài nộp' },
+                    { id: 'download', label: 'Tải xuống bài nộp' },
+                    { id: 'delete', label: 'Xóa bài nộp' },
+                    { id: 'manage_permissions', label: 'Quản lý quyền' },
+                    { id: 'edit_info', label: 'Mở khóa và chỉnh sửa thông tin học sinh' }
+                ];
+
+                // Get all permissions from userAuth
+                if (window.userAuth && window.userAuth.PERMISSIONS) {
+                    // Add any missing permissions from the system
+                    Object.values(window.userAuth.PERMISSIONS).forEach(permId => {
+                        if (!permissions.some(p => p.id === permId)) {
+                            permissions.push({ id: permId, label: formatPermissionLabel(permId) });
+                        }
+                    });
+                }
+
+                permissions.forEach(perm => {
+                    const option = document.createElement('option');
+                    option.value = perm.id;
+                    option.textContent = perm.label;
+                    batchPermissionSelect.appendChild(option);
+                });
+            }
+
+            // Grant permissions to all users
+            grantAllBtn.addEventListener('click', function() {
+                if (confirm('Bạn có chắc muốn cấp TẤT CẢ quyền cho TẤT CẢ người dùng không?')) {
+                    const users = window.userAuth.getAllUsers();
+                    let updateCount = 0;
+
+                    users.forEach(user => {
+                        if (user.id === currentUser.id) return; // Skip current admin
+
+                        // Get all available permissions
+                        const allPermissions = [];
+                        Object.values(window.userAuth.PERMISSIONS).forEach(perm => {
+                            if (!allPermissions.includes(perm)) {
+                                allPermissions.push(perm);
+                            }
+                        });
+
+                        // Update user permissions
+                        const success = window.userAuth.updateUserPermissions(user.id, allPermissions);
+                        if (success) updateCount++;
+                    });
+
+                    adminMessage.textContent = `Đã cấp tất cả quyền cho ${updateCount} người dùng`;
+                    adminMessage.className = "success";
+                    adminMessage.style.display = "block";
+
+                    setTimeout(() => {
+                        adminMessage.style.display = "none";
+                    }, 3000);
+
+                    renderUsers();
+                }
+            });
+
+            // Revoke all permissions from all users
+            revokeAllBtn.addEventListener('click', function() {
+                if (confirm('Bạn có chắc muốn thu hồi TẤT CẢ quyền từ TẤT CẢ người dùng không?')) {
+                    const users = window.userAuth.getAllUsers();
+                    let updateCount = 0;
+
+                    users.forEach(user => {
+                        if (user.id === currentUser.id || user.isAdmin) return; // Skip current admin and admin users
+
+                        // Update user permissions
+                        const success = window.userAuth.updateUserPermissions(user.id, []);
+                        if (success) updateCount++;
+                    });
+
+                    adminMessage.textContent = `Đã thu hồi tất cả quyền từ ${updateCount} người dùng`;
+                    adminMessage.className = "success";
+                    adminMessage.style.display = "block";
+
+                    setTimeout(() => {
+                        adminMessage.style.display = "none";
+                    }, 3000);
+
+                    renderUsers();
+                }
+            });
+
+            // Grant selected permission to all users
+            grantSelectedBtn.addEventListener('click', function() {
+                const selectedPermission = batchPermissionSelect.value;
+
+                if (!selectedPermission) {
+                    alert('Vui lòng chọn một quyền');
+                    return;
+                }
+
+                if (confirm(`Bạn có chắc muốn cấp quyền "${batchPermissionSelect.options[batchPermissionSelect.selectedIndex].text}" cho tất cả người dùng?`)) {
+                    const users = window.userAuth.getAllUsers();
+                    let updateCount = 0;
+
+                    users.forEach(user => {
+                        if (user.id === currentUser.id) return; // Skip current admin
+
+                        // Add the permission if not already present
+                        if (!user.permissions.includes(selectedPermission)) {
+                            const newPermissions = [...user.permissions, selectedPermission];
+                            const success = window.userAuth.updateUserPermissions(user.id, newPermissions);
+                            if (success) updateCount++;
+                        }
+                    });
+
+                    adminMessage.textContent = `Đã cấp quyền cho ${updateCount} người dùng`;
+                    adminMessage.className = "success";
+                    adminMessage.style.display = "block";
+
+                    setTimeout(() => {
+                        adminMessage.style.display = "none";
+                    }, 3000);
+
+                    renderUsers();
+                }
+            });
+
+            // Revoke selected permission from all users
+            revokeSelectedBtn.addEventListener('click', function() {
+                const selectedPermission = batchPermissionSelect.value;
+
+                if (!selectedPermission) {
+                    alert('Vui lòng chọn một quyền');
+                    return;
+                }
+
+                if (confirm(`Bạn có chắc muốn thu hồi quyền "${batchPermissionSelect.options[batchPermissionSelect.selectedIndex].text}" từ tất cả người dùng?`)) {
+                    const users = window.userAuth.getAllUsers();
+                    let updateCount = 0;
+
+                    users.forEach(user => {
+                        if (user.id === currentUser.id || user.isAdmin) return; // Skip current admin and admin users
+
+                        // Remove the permission if present
+                        if (user.permissions.includes(selectedPermission)) {
+                            const newPermissions = user.permissions.filter(p => p !== selectedPermission);
+                            const success = window.userAuth.updateUserPermissions(user.id, newPermissions);
+                            if (success) updateCount++;
+                        }
+                    });
+
+                    adminMessage.textContent = `Đã thu hồi quyền từ ${updateCount} người dùng`;
+                    adminMessage.className = "success";
+                    adminMessage.style.display = "block";
+
+                    setTimeout(() => {
+                        adminMessage.style.display = "none";
+                    }, 3000);
+
+                    renderUsers();
+                }
+            });
+
+            // Initialize
+            populatePermissionDropdown();
+            renderUsers();
+        });
+    </script>
+    <div class="footer-credit">Code by Dang Phat</div>
+</body>
+</html>

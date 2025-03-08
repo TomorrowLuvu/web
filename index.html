@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nộp bài tập</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Student Info Modal -->
+    <div id="student-info-modal" class="modal info-hidden">
+        <div class="modal-content">
+            <h3>Thông tin học sinh</h3>
+            <p>Vui lòng cung cấp thông tin của bạn trước khi tiếp tục:</p>
+            <div class="form-group">
+                <label for="student-name-input">Họ và tên:</label>
+                <input type="text" id="student-name-input" required>
+            </div>
+            <div class="form-group">
+                <label for="student-class-input">Lớp:</label>
+                <input type="text" id="student-class-input" required>
+            </div>
+            <button id="save-student-info" class="view-btn">Xác nhận</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Nộp bài tập</h1>
+        <form id="submission-form">
+            <div class="student-info-section" style="display: none;">
+                <div id="student-name-container" class="form-group">
+                    <label for="student-name">Tên học sinh:</label>
+                    <input type="text" id="student-name" name="student-name" required>
+                </div>
+
+                <div id="student-class-container" class="form-group">
+                    <label for="student-class">Lớp:</label>
+                    <input type="text" id="student-class" name="student-class" required>
+                </div>
+
+                <button type="button" id="confirm-student-info-btn" class="confirm-btn">Xác nhận thông tin học sinh</button>
+            </div>
+
+            <label for="assignment-title">Tên bài tập:</label>
+            <input type="text" id="assignment-title" name="assignment-title" required>
+
+            <label for="file-upload">Chọn tệp:</label>
+            <input type="file" id="file-upload" name="file-upload" required>
+
+            <button type="submit">Nộp bài</button>
+        </form>
+        <div id="submission-status"></div>
+    </div>
+
+    <div class="teacher-view" id="teacher-view" style="display: none;">
+        <h2>Bài nộp</h2>
+        <ul id="submission-list">
+        </ul>
+    </div>
+
+    <script src="users.js"></script>
+    <script src="script.js"></script>
+    <div class="footer-credit">Code by Dang Phat</div>
+</body>
+</html>

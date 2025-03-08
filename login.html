@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Đăng nhập</h1>
+        <div id="login-error" class="error" style="display: none;"></div>
+        <form id="login-form">
+            <label for="username">Tên đăng nhập:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Mật khẩu:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Đăng nhập</button>
+        </form>
+        <div class="form-footer">
+            <p>Chưa có tài khoản? <a href="register.html">Đăng ký</a></p>
+        </div>
+    </div>
+    
+    <script src="users.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
+            
+            // Check if user is already logged in
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (currentUser) {
+                window.location.href = 'index.html';
+            }
+            
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                const result = window.userAuth.loginUser(username, password);
+                
+                if (result.success) {
+                    // Store current user in localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    window.location.href = 'index.html';
+                } else {
+                    loginError.textContent = result.message;
+                    loginError.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

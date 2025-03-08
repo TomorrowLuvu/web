@@ -1,0 +1,643 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 20px;
+  background-color: #e9f5f9; /* Light blue background as fallback */
+  background-image: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); /* Nice gradient background */
+  background-attachment: fixed;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  font-weight: bold;
+  width: 150px;
+  margin-right: 10px;
+}
+
+.form-group input {
+  padding: 8px;
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.student-info-section {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+
+.confirm-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin: 10px 0 5px 0;
+}
+
+input {
+  padding: 8px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.user-info {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.user-info span {
+  margin-right: 15px;
+}
+
+#logout-btn {
+  background-color: #dc3545;
+  font-size: 14px;
+  padding: 5px 10px;
+  margin-top: 0;
+}
+
+#admin-btn {
+  background-color: #007bff;
+  font-size: 14px;
+  padding: 5px 10px;
+  margin-top: 0;
+}
+
+.form-footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.form-footer a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.form-footer a:hover {
+  text-decoration: underline;
+}
+
+#submission-status {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.teacher-view {
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#submission-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#submission-list li {
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border-left: 4px solid #4CAF50;
+}
+
+.submission-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.submission-actions {
+  margin-top: 8px;
+}
+
+.view-btn, .download-btn, .delete-btn {
+  background-color: #2196F3;
+  color: white;
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.download-btn {
+  background-color: #ff9800;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+}
+
+.locked-info {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  border-left: 4px solid #dc3545;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.locked-info p {
+  margin: 5px 0;
+}
+
+.editing-notice {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #fff3cd;
+  border-left: 3px solid #ffc107;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.locked-info strong {
+  color: #495057;
+}
+
+.edit-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.edit-btn:hover {
+  background-color: #0069d9;
+}
+
+.locked-user {
+  background-color: #ffe6e6;
+  border-left: 3px solid #dc3545;
+}
+
+.locked-badge {
+  background-color: #dc3545;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.lock-user-btn, .unlock-user-btn {
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.lock-user-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.unlock-user-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.status-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.footer-credit {
+  position: fixed;
+  bottom: 5px;
+  left: 10px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  font-style: italic;
+}
+
+.permission-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.permission-controls button {
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.permission-controls select {
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+}
+
+/* Added styles from the changes */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.form-footer {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.form-footer a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+.error {
+    color: #dc3545;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.success {
+    color: #28a745;
+    background-color: #d4edda;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* Teacher view styles */
+.teacher-view {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+#submission-list {
+    padding: 0;
+    list-style-type: none;
+}
+
+#submission-list li {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.submission-info {
+    flex: 1;
+}
+
+.submission-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.view-btn, .download-btn, .delete-btn {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.view-btn {
+    background-color: #17a2b8;
+}
+
+.download-btn {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+}
+
+#submission-status {
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 4px;
+}
+
+/* User info bar */
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+#logout-btn {
+    background-color: #dc3545;
+    margin-left: 10px;
+}
+
+.status-message {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.status-message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.user-list {
+    margin-top: 15px;
+}
+
+.user-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+.user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.confirm-btn {
+    background-color: #6c757d;
+    margin-top: 10px;
+}
+
+.locked-info {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #dc3545;
+    margin-bottom: 20px;
+}
+
+.edit-btn {
+    background-color: #28a745;
+    margin-top: 10px;
+}
+
+.footer-credit {
+    text-align: center;
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 50px;
+}
+
+/* Modal styles for student info */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 500px;
+}
+
+.info-hidden {
+    display: none;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.button-group {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 100%;
+}
+
+.modal h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.modal .form-group {
+    margin-bottom: 15px;
+}
+
+.modal input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.modal .button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.info-hidden {
+    display: none;
+}
+
+#student-info-display {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #17a2b8;
+}
